@@ -3,7 +3,8 @@ import mongoose from "mongoose"
 const recordSchema = new mongoose.Schema({
     amount:{
         type: Number,
-        required: true
+        required: true,
+        min: [0, "Amount cannot be negative"]
     },
     type:{
         type: String,
@@ -23,7 +24,7 @@ const recordSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
-    user_id:{
+    user:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'userModel',
         required: true

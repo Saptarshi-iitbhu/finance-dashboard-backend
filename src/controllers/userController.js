@@ -31,7 +31,7 @@ export const registerUser = async (req, res) => {
         const validatedData = registerSchema.parse({ email, password });
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const newUser = await userModel({
+        const newUser = new userModel({
             username,
             email: validatedData.email,
             password: hashedPassword,
@@ -50,10 +50,12 @@ export const registerUser = async (req, res) => {
         res.status(201).json(userWithoutPassword);
 
     } catch (err) {
-        if (err instanceof z.ZodError) {
-            return res.status(400).json({ errors: err.errors.map(e => e.message) });
-        }
-        res.status(500).json({ message: err.message });
+        return res.status(500).json({ 
+            message: "Internal Server Error", 
+            errorName: err.name,
+            errorMessage: err.message,
+            stack: err.stack 
+        });
     }
 };
 
@@ -80,7 +82,7 @@ export const loginUser = async (req, res)=>{
         const { password: _, ...userWithoutPassword } = user.toObject();
         return res.status(201).json(userWithoutPassword);
     } catch(err) {
-        return es.status(500).json({ message: "Internal Server Error" });
+        return res.status(500).json({ message: "Internal Server Error" });
     }
 };
 
@@ -93,17 +95,17 @@ export const logoutUser = async (req, res)=>{
     }
 }
 
-export const getUserProfile = async (req, res) => {
-    try {
-        const user = await userModel.findById(req.user.id).select("-password");
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
+    export const getUserProfile = async (req, res) => {
+        try {
+            const user = await userModel.findById(req.user._id).select("-password");
+            if (!user) {
+                return res.status(404).json({ message: "User not found" });
+            }
+            return res.status(200).json(user);
+        } catch (err) {
+            return res.status(500).json({ message: "Internal Server Error" });
         }
-        return res.status(200).json(user);
-    } catch (err) {
-        return res.status(500).json({ message: "Internal Server Error" });
-    }
-};
+    };
 
 export const getAllUsers = async (req, res) => {
     try {
@@ -120,7 +122,7 @@ export const updateUserRoleOrStatus = async (req, res) => {
         const { role, status } = req.body; 
 
         const validRoles = ['ADMIN', 'ANALYST', 'VIEWER'];
-        const validStatuses = ['ACTIVE', 'INACTIVE'];
+        const validStatuses = ['ONLINE', 'OFFLINE'];
 
         if (role && !validRoles.includes(role)) {
             return res.status(400).json({ message: "Invalid role provided" });

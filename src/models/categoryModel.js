@@ -7,11 +7,6 @@ const categorySchema = new mongoose.Schema({
         unique: true,
         trim: true
     },
-    type:{
-        type: String,
-        enum: ['INCOME', 'EXPENSE'],
-        required: true
-    }
 }, {timestamps: true})
 
 export default mongoose.model('Category', categorySchema)
