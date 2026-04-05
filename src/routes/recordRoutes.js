@@ -9,4 +9,6 @@ recordRouter.get("/", protect, getRecords);
 recordRouter.post("/", protect, authorizeRoles("ADMIN"), createRecord);
 recordRouter.delete("/:id", protect, authorizeRoles("ADMIN"), createRecord);
 
+recordRouter.get("/summary", protect, getDashboardSummary);
+
 export default recordRouter
