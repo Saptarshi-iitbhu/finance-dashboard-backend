@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import userModel from "../models/userModel.js";
 import bcrypt from "bcryptjs";
-import { z } from "zod"; 
+import { registerSchema } from "../validations.js";
 
 const cookieOptions = {
     httpOnly: true,
@@ -18,24 +18,17 @@ export const registerUser = async (req, res) => {
             return res.status(400).json({ message: "User already exists" });
         }
 
-        const registerSchema = z.object({
-            email: z.string().email("Invalid email format"),
-            password: z.string()
-                .min(8, "Password must be at least 8 characters")
-                .regex(/[a-z]/, "Need one lowercase letter")
-                .regex(/[A-Z]/, "Need one uppercase letter")
-                .regex(/\d/, "Need one digit")
-                .regex(/[^a-zA-Z0-9]/, "Need one special character")
-        });
-
         const validatedData = registerSchema.parse({ email, password });
         const hashedPassword = await bcrypt.hash(password, 10);
+
+        const userCount = await userModel.countDocuments();
+        const assignedRole = userCount === 0 ? 'ADMIN' : 'VIEWER';
 
         const newUser = new userModel({
             username,
             email: validatedData.email,
             password: hashedPassword,
-            role: role || 'VIEWER'
+            role: assignedRole
         });
 
         const user = await newUser.save();
@@ -146,6 +139,19 @@ export const updateUserRoleOrStatus = async (req, res) => {
             user: updatedUser
         });
 
+    } catch (err) {
+        return res.status(500).json({ message: "Internal Server Error", error: err.message });
+    }
+};
+
+export const deleteUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const user = await userModel.findByIdAndDelete(id);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        return res.status(200).json({ message: "User deleted successfully" });
     } catch (err) {
         return res.status(500).json({ message: "Internal Server Error", error: err.message });
     }
