@@ -12,6 +12,24 @@ This backend emphasizes separation of concerns logic adhering strictly to a Mode
 *   **Service Layer** (`services.js`): Heavily complex business rules (e.g., extensive MongoDB Analytics aggregations) are stripped completely out of the HTTP controllers and centralized in static class services, making them easily callable by automated scripts or secondary routes if necessary.
 *   **Models**: Standard `mongoose` schemas strictly managing default states alongside indexing hooks.
 
+## 📂 File Structure
+```text
+.
+├── src/
+│   ├── controllers/      # Route handlers and HTTP logic
+│   ├── middleware/       # Express middlewares (auth, errors)
+│   ├── models/           # Mongoose data schemas
+│   ├── routes/           # API endpoint routing
+│   ├── config.js         # Connection configurations
+│   ├── services.js       # Core business & DB logic 
+│   └── validations.js    # Payload Zod validators
+├── .env                  # Environment variables
+├── API_DOCS.md           # API endpoints documentation
+├── index.js              # Server entry point
+├── package.json          # Project dependencies
+└── README.md             # High-level overview
+```
+
 ## 🔒 Tradeoffs and Assumptions Made
 * **Soft Deletions**: Deleting historical financial records is typically a bad idea (e.g., auditing mismatches). The decision was made to use `isDeleted` flag modifications rather than permanently erasing the document. 
 * **Authentication Method**: We heavily favored robust **`httpOnly` JSON Web Tokens** stored strictly within encrypted cookies, rather than standard Header-Attached Bearer Tokens. This explicitly blocks the possibility of Cross-Site Scripting (XSS) attacks compromising user credentials.
