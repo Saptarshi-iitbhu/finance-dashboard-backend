@@ -1,4 +1,5 @@
 import mongoose from "mongoose"
+import { required } from "zod/mini"
 
 const recordSchema = new mongoose.Schema({
     amount:{
@@ -25,6 +26,11 @@ const recordSchema = new mongoose.Schema({
         trim: true
     },
     user:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'userModel',
+        required: true
+    },
+    createdBy:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'userModel',
         required: true

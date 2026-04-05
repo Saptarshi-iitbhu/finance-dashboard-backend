@@ -5,6 +5,8 @@ import cookieParser from "cookie-parser";
 import connectDB from "./src/config.js";
 import userRoutes from "./src/routes/userRoutes.js";
 import recordRoutes from "./src/routes/recordRoutes.js";
+import categoryRouter from "./src/routes/categoryRoutes.js";
+
 
 dotenv.config();
 connectDB();
@@ -18,6 +20,7 @@ app.use(cookieParser());
 
 app.use("/api/users", userRoutes);
 app.use("/api/records", recordRoutes);
+app.use("/api/categories", categoryRouter)
 
 app.get('/', (req, res) => {
     res.send('Zorvyn Finance API is running...');
